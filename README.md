@@ -10,7 +10,11 @@ REFERENCE
 
 ### **Project Structure**
   `_server` module is an basic implementation of a `WSGI server`. 
-  Similarly `demo_app.py` implements a simple application callable following WSGI standards. 
+  **It's job is to parse the HTTP.**
+  
+  Similarly `demo_app.py` implements a simple application callable following WSGI standards.
+  **Web App holds the business logic. i.e. based on information from server, process information, give back something**.
+
   This is the same kind of callable that we build while working with web-frameworks 
   like flask, django e.t.c. It's job is to simply return the HTML page (as byte-string ) for browser to render.  
   
@@ -33,8 +37,8 @@ WSGIServer has `TCPServer` as it's base class. Each new request (i.e the socket 
 `process_request` then instantiates the `RequestHandlerClass` with socket file descriptor. We call `process_request` for each new connection. It's during this instantiation, the Handler also invokes a `handle` method that will read the client request from the file descriptor, parse that content and send back results to client.
 
 > **MAKING THINGS CONCURRENT**:
-In this design, we could easily handle multiple clients by override the `process_request` so that `handle` for each new connection is called in a new thread or a process. Check `socketserver.ThreadingMixin`. 
- **How things work our for single-threaded, single-process design with asyncio is something I haven't looked at yet**  
+In this design, we could handle multiple clients by overriding the `process_request` so that `handle` for each new connection is called in a new thread or a process. Check `socketserver.ThreadingMixin`. 
+ **How things work our for single-threaded, single-process design with asyncio is infact one of WSGI limitation. That's why ASGI was proposed in 2019.**  
 
 Remember that all we pass to the `RequestHandlerClass` is the socket file descriptor. How it deals with the contents is totally based on usecase. 
 For our usecase, we assume we our client is sending requests according to HTTP Protocol. Our handler assumes that contents read from the socket (i.e request sent by client)
@@ -84,7 +88,12 @@ Connection: keep-alive
       # By the way, self.stdout is a 
       ```
 
+### WSGI Quick Notes
+  - `start_response` : It is implemented by the web-server. It's called from inside the application callable. It will collect the request headers and create response header
+    in `self.headers` attribute for `SeverHandler`. It return's a `self.write`. But that's just for backward compatibility and should be ignored.
+  - `write` callable : 
     
+     If we take a look at BaseHandler.startResponse 
 
 
 
